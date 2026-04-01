@@ -27,14 +27,19 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
-      <header className="border-b border-stone-200 bg-white px-6 py-4">
-        <h1 className="text-lg font-semibold text-stone-800">Distortion Helper</h1>
+    <div className="min-h-screen bg-stone-100">
+      <header className="border-b border-stone-200 bg-amber-50 px-6 py-5">
+        <div className="mx-auto max-w-5xl">
+          <h1 className="text-xl font-bold text-stone-800">Distortion Helper</h1>
+          <p className="mt-0.5 text-sm text-stone-500">
+            Spot the thought patterns that keep you stuck — and find a kinder way through.
+          </p>
+        </div>
       </header>
 
-      <div className="mx-auto flex max-w-5xl gap-6 p-6">
+      <div className="mx-auto max-w-5xl gap-6 p-4 sm:p-6 flex flex-col sm:flex-row">
         {/* Sidebar */}
-        <div className="w-52 shrink-0">
+        <div className="sm:w-52 sm:shrink-0">
           <HistoryPanel
             entries={entries}
             onSelect={handleHistorySelect}
@@ -43,17 +48,17 @@ export default function App() {
         </div>
 
         {/* Main content */}
-        <main className="flex-1 flex flex-col gap-6">
+        <main className="flex-1 min-w-0 flex flex-col gap-6">
           {/* Tabs */}
-          <div className="flex gap-1 border-b border-stone-200">
+          <div className="flex gap-1 border-b-2 border-stone-200">
             {TABS.map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`px-4 py-2 text-sm font-medium ${
+                className={`px-4 py-2.5 text-sm font-semibold transition-colors ${
                   tab === t
-                    ? 'border-b-2 border-amber-500 text-amber-700'
-                    : 'text-stone-500 hover:text-stone-700'
+                    ? 'border-b-2 -mb-0.5 border-amber-500 text-amber-700'
+                    : 'text-stone-400 hover:text-stone-600'
                 }`}
               >
                 {t}
@@ -65,7 +70,9 @@ export default function App() {
             <div className="flex flex-col gap-6">
               <ThoughtInput onSubmit={handleSubmit} loading={loading} />
               {error && (
-                <p className="text-sm text-rose-600">{error}</p>
+                <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                  {error}
+                </div>
               )}
               <AnalysisResult result={result} />
             </div>
