@@ -9,3 +9,4 @@ client/dist/
 npm-debug.log*
 Cognitive-Distortions.pdf
 NOTES.md
+.DS_Store
