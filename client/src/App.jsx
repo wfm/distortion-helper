@@ -3,34 +3,22 @@ import ThoughtInput from './components/ThoughtInput.jsx';
 import AnalysisResult from './components/AnalysisResult.jsx';
 import DistortionCard from './components/DistortionCard.jsx';
 import HistoryPanel from './components/HistoryPanel.jsx';
+import useAnalysis from './hooks/useAnalysis.js';
+import useHistory from './hooks/useHistory.js';
 import distortions from './data/distortions.js';
 
 const TABS = ['Analyze', 'Reference'];
 
 export default function App() {
   const [tab, setTab] = useState('Analyze');
+  const { loading, error, result, setResult, analyze } = useAnalysis();
+  const { entries, addEntry, clearHistory } = useHistory();
 
-  // Placeholder state — replaced by useAnalysis / useHistory in Phase 5
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [history, setHistory] = useState([]);
-
-  function handleSubmit(thought) {
-    setLoading(true);
-    fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ thought }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        setResult(data);
-        setHistory((prev) => [
-          { id: Date.now(), thought, result: data },
-          ...prev,
-        ]);
-      })
-      .finally(() => setLoading(false));
+  async function handleSubmit(thought) {
+    const data = await analyze(thought);
+    if (data) {
+      addEntry(thought, data);
+    }
   }
 
   function handleHistorySelect(entry) {
@@ -48,9 +36,9 @@ export default function App() {
         {/* Sidebar */}
         <div className="w-52 shrink-0">
           <HistoryPanel
-            entries={history}
+            entries={entries}
             onSelect={handleHistorySelect}
-            onClear={() => setHistory([])}
+            onClear={clearHistory}
           />
         </div>
 
@@ -76,6 +64,9 @@ export default function App() {
           {tab === 'Analyze' && (
             <div className="flex flex-col gap-6">
               <ThoughtInput onSubmit={handleSubmit} loading={loading} />
+              {error && (
+                <p className="text-sm text-rose-600">{error}</p>
+              )}
               <AnalysisResult result={result} />
             </div>
           )}
