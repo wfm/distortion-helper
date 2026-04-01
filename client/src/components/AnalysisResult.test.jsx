@@ -25,31 +25,41 @@ const result = {
 };
 
 describe('AnalysisResult', () => {
-  it('renders nothing when result is null', () => {
-    const { container } = render(<AnalysisResult result={null} />);
-    expect(container).toBeEmptyDOMElement();
+  it('renders the empty state when result is null and not loading', () => {
+    render(<AnalysisResult result={null} loading={false} />);
+    expect(screen.getByText(/your analysis will appear here/i)).toBeInTheDocument();
+  });
+
+  it('renders the loading skeleton when loading is true', () => {
+    render(<AnalysisResult result={null} loading={true} />);
+    expect(screen.getByRole('generic', { hidden: true, name: /loading analysis/i })).toBeInTheDocument();
+  });
+
+  it('does not render results while loading', () => {
+    render(<AnalysisResult result={result} loading={true} />);
+    expect(screen.queryByText('All-or-Nothing Thinking')).not.toBeInTheDocument();
   });
 
   it('renders all detected distortion names', () => {
-    render(<AnalysisResult result={result} />);
+    render(<AnalysisResult result={result} loading={false} />);
     expect(screen.getByText('All-or-Nothing Thinking')).toBeInTheDocument();
     expect(screen.getByText('Overgeneralization')).toBeInTheDocument();
   });
 
   it('renders the reframe text', () => {
-    render(<AnalysisResult result={result} />);
+    render(<AnalysisResult result={result} loading={false} />);
     expect(
       screen.getByText('Try to look for evidence that contradicts this belief.')
     ).toBeInTheDocument();
   });
 
   it('renders the disclaimer', () => {
-    render(<AnalysisResult result={result} />);
+    render(<AnalysisResult result={result} loading={false} />);
     expect(screen.getByText(DISCLAIMER)).toBeInTheDocument();
   });
 
   it('shows a no-distortions message when the array is empty', () => {
-    render(<AnalysisResult result={{ ...result, distortions: [] }} />);
+    render(<AnalysisResult result={{ ...result, distortions: [] }} loading={false} />);
     expect(
       screen.getByText(/no strong cognitive distortions detected/i)
     ).toBeInTheDocument();
