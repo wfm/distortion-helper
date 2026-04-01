@@ -30,7 +30,7 @@ export default function AnalysisResult({ result }) {
       )}
 
       {result.disclaimer && (
-        <p className="text-xs leading-relaxed text-stone-400 border-t border-stone-200 pt-4">
+        <p className="text-xs leading-relaxed text-stone-600 border-t border-stone-200 pt-4">
           {result.disclaimer}
         </p>
       )}

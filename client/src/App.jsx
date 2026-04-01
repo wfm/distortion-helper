@@ -11,17 +11,22 @@ const TABS = ['Analyze', 'Reference'];
 
 export default function App() {
   const [tab, setTab] = useState('Analyze');
+  const [submittedThought, setSubmittedThought] = useState('');
+  const [inputKey, setInputKey] = useState(0);
   const { loading, error, result, setResult, analyze } = useAnalysis();
   const { entries, addEntry, clearHistory } = useHistory();
 
   async function handleSubmit(thought) {
+    setSubmittedThought(thought);
     const data = await analyze(thought);
     if (data) {
       addEntry(thought, data);
+      setInputKey((k) => k + 1);
     }
   }
 
   function handleHistorySelect(entry) {
+    setSubmittedThought(entry.thought);
     setResult(entry.result);
     setTab('Analyze');
   }
@@ -68,10 +73,16 @@ export default function App() {
 
           {tab === 'Analyze' && (
             <div className="flex flex-col gap-6">
-              <ThoughtInput onSubmit={handleSubmit} loading={loading} />
+              <ThoughtInput key={inputKey} onSubmit={handleSubmit} loading={loading} />
               {error && (
                 <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
                   {error}
+                </div>
+              )}
+              {submittedThought && result && (
+                <div className="rounded-xl border border-stone-200 bg-white px-5 py-4 shadow-sm">
+                  <p className="mb-1 text-xs font-bold uppercase tracking-widest text-stone-400">Your thought</p>
+                  <p className="text-stone-700 leading-relaxed">{submittedThought}</p>
                 </div>
               )}
               <AnalysisResult result={result} />
