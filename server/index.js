@@ -19,15 +19,15 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+      styleSrc: ["'self'"],
+      fontSrc: ["'self'"],
       connectSrc: ["'self'"],
       imgSrc: ["'self'", 'data:'],
       frameAncestors: ["'none'"],
     },
   },
 }));
-app.use(cors());
+app.use(cors({ origin: process.env.NODE_ENV === 'production' ? false : 'https://localhost:5173' }));
 app.use(express.json());
 
 const apiAuth = basicAuth({
