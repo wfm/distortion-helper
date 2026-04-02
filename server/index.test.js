@@ -11,7 +11,13 @@ vi.mock('@anthropic-ai/sdk', () => {
   };
 });
 
+// Must be set before import so basicAuth middleware picks them up at construction time
+process.env.BASIC_AUTH_USER = 'testuser';
+process.env.BASIC_AUTH_PASSWORD = 'testpass';
+
 const { default: app } = await import('./index.js');
+
+const AUTH = { user: 'testuser', pass: 'testpass' };
 
 const VALID_RESPONSE = {
   distortions: [
@@ -33,25 +39,62 @@ function mockSuccess(payload = VALID_RESPONSE) {
   });
 }
 
+describe('Basic Auth', () => {
+  it('returns 401 when no credentials are provided', async () => {
+    const res = await request(app).post('/api/analyze').send({ thought: 'test' });
+    expect(res.status).toBe(401);
+  });
+
+  it('returns 401 when credentials are wrong', async () => {
+    const res = await request(app)
+      .post('/api/analyze')
+      .auth('wrong', 'credentials')
+      .send({ thought: 'test' });
+    expect(res.status).toBe(401);
+  });
+
+  it('allows requests with correct credentials', async () => {
+    mockSuccess();
+    const res = await request(app)
+      .post('/api/analyze')
+      .auth(AUTH.user, AUTH.pass)
+      .send({ thought: 'I always mess everything up.' });
+    expect(res.status).toBe(200);
+  });
+});
+
+describe('GET /api/ping', () => {
+  it('returns 200 with correct credentials', async () => {
+    const res = await request(app).get('/api/ping').auth(AUTH.user, AUTH.pass);
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ ok: true });
+  });
+
+  it('returns 401 without credentials', async () => {
+    const res = await request(app).get('/api/ping');
+    expect(res.status).toBe(401);
+  });
+});
+
 describe('POST /api/analyze', () => {
   beforeEach(() => {
     mockCreate.mockReset();
   });
 
   it('returns 400 when thought is missing', async () => {
-    const res = await request(app).post('/api/analyze').send({});
+    const res = await request(app).post('/api/analyze').auth(AUTH.user, AUTH.pass).send({});
     expect(res.status).toBe(400);
     expect(res.body).toHaveProperty('error');
   });
 
   it('returns 400 when thought is an empty string', async () => {
-    const res = await request(app).post('/api/analyze').send({ thought: '   ' });
+    const res = await request(app).post('/api/analyze').auth(AUTH.user, AUTH.pass).send({ thought: '   ' });
     expect(res.status).toBe(400);
     expect(res.body).toHaveProperty('error');
   });
 
   it('returns 400 when thought is not a string', async () => {
-    const res = await request(app).post('/api/analyze').send({ thought: 42 });
+    const res = await request(app).post('/api/analyze').auth(AUTH.user, AUTH.pass).send({ thought: 42 });
     expect(res.status).toBe(400);
     expect(res.body).toHaveProperty('error');
   });
@@ -60,6 +103,7 @@ describe('POST /api/analyze', () => {
     mockSuccess();
     const res = await request(app)
       .post('/api/analyze')
+      .auth(AUTH.user, AUTH.pass)
       .send({ thought: 'I always mess everything up.' });
 
     expect(res.status).toBe(200);
@@ -73,6 +117,7 @@ describe('POST /api/analyze', () => {
     mockSuccess();
     const res = await request(app)
       .post('/api/analyze')
+      .auth(AUTH.user, AUTH.pass)
       .send({ thought: 'I always mess everything up.' });
 
     const distortion = res.body.distortions[0];
@@ -86,6 +131,7 @@ describe('POST /api/analyze', () => {
     mockCreate.mockRejectedValueOnce(new Error('Network error'));
     const res = await request(app)
       .post('/api/analyze')
+      .auth(AUTH.user, AUTH.pass)
       .send({ thought: 'I always mess everything up.' });
 
     expect(res.status).toBe(502);
@@ -98,6 +144,7 @@ describe('POST /api/analyze', () => {
     });
     const res = await request(app)
       .post('/api/analyze')
+      .auth(AUTH.user, AUTH.pass)
       .send({ thought: 'I always mess everything up.' });
 
     expect(res.status).toBe(502);

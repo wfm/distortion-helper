@@ -1,11 +1,35 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
+import basicAuth from 'express-basic-auth';
 import Anthropic from '@anthropic-ai/sdk';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+app.use(
+  basicAuth({
+    users: {
+      [process.env.BASIC_AUTH_USER]: process.env.BASIC_AUTH_PASSWORD,
+    },
+    challenge: false,
+  })
+);
+
+app.get('/api/ping', (_req, res) => res.json({ ok: true }));
+
+app.use(
+  '/api/analyze',
+  rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 20,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests — please try again later.' },
+  })
+);
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 

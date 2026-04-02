@@ -131,9 +131,19 @@ Respond ONLY with valid JSON matching this schema — no preamble, no markdown:
 
 ## Environment
 
-- Server reads `ANTHROPIC_API_KEY` from `.env` (gitignored)
+- Server reads the following from `.env` (gitignored):
+  - `ANTHROPIC_API_KEY` — Anthropic API key
+  - `BASIC_AUTH_USER` — HTTP Basic Auth username
+  - `BASIC_AUTH_PASSWORD` — HTTP Basic Auth password
 - Client proxies to server at `http://localhost:3001` in dev
 - Add a `vite.config.js` proxy so client can call `/api/analyze` without CORS issues
+
+## Security
+
+- **HTTP Basic Auth** (`express-basic-auth`) — applied globally; credentials read from
+  `BASIC_AUTH_USER` / `BASIC_AUTH_PASSWORD` env vars
+- **Rate limiting** (`express-rate-limit`) — 20 requests per IP per hour on
+  `/api/analyze`; returns `429` with `{ error: "Too many requests — please try again later." }`
 
 ## Build phases
 

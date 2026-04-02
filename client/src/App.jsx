@@ -3,6 +3,7 @@ import ThoughtInput from './components/ThoughtInput.jsx';
 import AnalysisResult from './components/AnalysisResult.jsx';
 import DistortionCard from './components/DistortionCard.jsx';
 import HistoryPanel from './components/HistoryPanel.jsx';
+import LoginForm from './components/LoginForm.jsx';
 import useAnalysis from './hooks/useAnalysis.js';
 import useHistory from './hooks/useHistory.js';
 import distortions from './data/distortions.js';
@@ -10,10 +11,11 @@ import distortions from './data/distortions.js';
 const TABS = ['Analyze', 'Reference'];
 
 export default function App() {
+  const [credentials, setCredentials] = useState(null);
   const [tab, setTab] = useState('Analyze');
   const [submittedThought, setSubmittedThought] = useState('');
   const [inputKey, setInputKey] = useState(0);
-  const { loading, error, result, setResult, analyze } = useAnalysis();
+  const { loading, error, result, setResult, analyze } = useAnalysis(credentials);
   const { entries, addEntry, clearHistory } = useHistory();
 
   async function handleSubmit(thought) {
@@ -30,6 +32,8 @@ export default function App() {
     setResult(entry.result);
     setTab('Analyze');
   }
+
+  if (!credentials) return <LoginForm onSuccess={setCredentials} />;
 
   return (
     <div className="min-h-screen bg-stone-100">

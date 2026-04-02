@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function useAnalysis() {
+export default function useAnalysis(credentials) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
@@ -13,7 +13,12 @@ export default function useAnalysis() {
     try {
       const res = await fetch('/api/analyze', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(credentials && {
+            Authorization: `Basic ${btoa(`${credentials.user}:${credentials.password}`)}`,
+          }),
+        },
         body: JSON.stringify({ thought }),
       });
 
