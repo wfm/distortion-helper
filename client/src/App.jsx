@@ -52,7 +52,7 @@ export default function App() {
           <HistoryPanel
             entries={entries}
             onSelect={handleHistorySelect}
-            onClear={clearHistory}
+            onClear={() => { clearHistory(); setResult(null); setSubmittedThought(''); }}
           />
         </div>
 
