@@ -3,9 +3,11 @@ import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import basicAuth from 'express-basic-auth';
+import helmet from 'helmet';
 import Anthropic from '@anthropic-ai/sdk';
 
 const app = express();
+app.use(helmet());
 app.use(cors());
 app.use(express.json());
 

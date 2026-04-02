@@ -140,6 +140,7 @@ Respond ONLY with valid JSON matching this schema — no preamble, no markdown:
 
 ## Security
 
+- **Security headers** (`helmet`) — applied globally; sets `X-Content-Type-Options`, `X-Frame-Options`, `Strict-Transport-Security`, and related headers
 - **HTTP Basic Auth** (`express-basic-auth`) — applied globally; credentials read from
   `BASIC_AUTH_USER` / `BASIC_AUTH_PASSWORD` env vars
 - **Rate limiting** (`express-rate-limit`) — 20 requests per IP per hour on
