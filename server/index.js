@@ -24,6 +24,7 @@ app.use(helmet({
       connectSrc: ["'self'"],
       imgSrc: ["'self'", 'data:'],
       frameAncestors: ["'none'"],
+      formAction: ["'self'"],
     },
   },
 }));
