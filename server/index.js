@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import https from 'https';
 import rateLimit from 'express-rate-limit';
 import basicAuth from 'express-basic-auth';
 import helmet from 'helmet';
@@ -86,8 +87,10 @@ app.post('/api/analyze', async (req, res) => {
 const PORT = process.env.PORT || 3001;
 
 if (process.argv[1] === new URL(import.meta.url).pathname) {
-  app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+  const { default: createHttpsLocalhost } = await import('https-localhost');
+  const certs = await createHttpsLocalhost().getCerts();
+  https.createServer(certs, app).listen(PORT, () => {
+    console.log(`Server running on https://localhost:${PORT}`);
   });
 }
 
