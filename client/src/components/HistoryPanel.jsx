@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function HistoryPanel({ entries, onSelect, onClear }) {
+export default function HistoryPanel({ entries, onSelect, onClear, onReflect }) {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
@@ -37,6 +37,16 @@ export default function HistoryPanel({ entries, onSelect, onClear }) {
                 {entry.thought}
               </button>
             ))
+          )}
+          {entries.length >= 3 && onReflect && (
+            <div className="mt-2 pt-2 border-t border-stone-100">
+              <button
+                onClick={onReflect}
+                className="w-full rounded-lg bg-amber-100 px-2 py-2 text-xs font-semibold text-amber-700 hover:bg-amber-200 transition-colors"
+              >
+                Review My Patterns
+              </button>
+            </div>
           )}
         </div>
       )}

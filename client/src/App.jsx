@@ -6,17 +6,22 @@ import HistoryPanel from './components/HistoryPanel.jsx';
 import LoginForm from './components/LoginForm.jsx';
 import useAnalysis from './hooks/useAnalysis.js';
 import useHistory from './hooks/useHistory.js';
+import useReflect from './hooks/useReflect.js';
 import distortions from './data/distortions.js';
+import ReflectResult from './components/ReflectResult.jsx';
 
 const TABS = ['Analyze', 'Reference'];
 
 export default function App() {
   const [credentials, setCredentials] = useState(null);
   const [tab, setTab] = useState('Analyze');
+  const [view, setView] = useState('analyze');
   const [submittedThought, setSubmittedThought] = useState('');
   const [inputKey, setInputKey] = useState(0);
+  const [reflectKey, setReflectKey] = useState(0);
   const { loading, error, result, setResult, analyze } = useAnalysis(credentials);
   const { entries, addEntry, clearHistory } = useHistory();
+  const { reflectLoading, reflectError, reflectResult, practiceLoading, practiceError, feedback, reflect, submitPractice, reset } = useReflect(credentials);
 
   async function handleSubmit(thought) {
     setSubmittedThought(thought);
@@ -28,9 +33,17 @@ export default function App() {
   }
 
   function handleHistorySelect(entry) {
+    setView('analyze');
+    reset();
     setSubmittedThought(entry.thought);
     setResult(entry.result);
     setTab('Analyze');
+  }
+
+  async function handleReflect() {
+    setView('reflect');
+    setReflectKey((k) => k + 1);
+    await reflect(entries);
   }
 
   if (!credentials) return <LoginForm onSuccess={setCredentials} />;
@@ -52,7 +65,8 @@ export default function App() {
           <HistoryPanel
             entries={entries}
             onSelect={handleHistorySelect}
-            onClear={() => { clearHistory(); setResult(null); setSubmittedThought(''); }}
+            onClear={() => { clearHistory(); setResult(null); setSubmittedThought(''); setView('analyze'); reset(); }}
+            onReflect={handleReflect}
           />
         </div>
 
@@ -63,7 +77,7 @@ export default function App() {
             {TABS.map((t) => (
               <button
                 key={t}
-                onClick={() => setTab(t)}
+                onClick={() => { setTab(t); reset(); setView('analyze'); }}
                 className={`px-4 py-2.5 text-sm font-semibold transition-colors ${
                   tab === t
                     ? 'border-b-2 -mb-0.5 border-amber-500 text-amber-700'
@@ -75,7 +89,7 @@ export default function App() {
             ))}
           </div>
 
-          {tab === 'Analyze' && (
+          {tab === 'Analyze' && view === 'analyze' && (
             <div className="flex flex-col gap-6">
               <ThoughtInput key={inputKey} onSubmit={handleSubmit} loading={loading} />
               {error && (
@@ -90,6 +104,33 @@ export default function App() {
                 </div>
               )}
               <AnalysisResult result={result} loading={loading} />
+            </div>
+          )}
+
+          {tab === 'Analyze' && view === 'reflect' && (
+            <div className="flex flex-col gap-6">
+              <button
+                onClick={() => { setView('analyze'); reset(); }}
+                className="self-start text-xs text-stone-400 hover:text-stone-600 transition-colors"
+              >
+                ← Back
+              </button>
+              {reflectError && (
+                <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                  {reflectError}
+                </div>
+              )}
+              {!reflectError && (
+                <ReflectResult
+                  key={reflectKey}
+                  result={reflectResult}
+                  loading={reflectLoading}
+                  onSubmitPractice={submitPractice}
+                  practiceLoading={practiceLoading}
+                  practiceError={practiceError}
+                  feedback={feedback}
+                />
+              )}
             </div>
           )}
 
