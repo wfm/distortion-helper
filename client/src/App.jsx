@@ -86,7 +86,7 @@ export default function App() {
               {submittedThought && (loading || result) && (
                 <div className="rounded-xl border border-stone-200 bg-white px-5 py-4 shadow-sm">
                   <p className="mb-1 text-xs font-bold uppercase tracking-widest text-stone-400">Your thought</p>
-                  <p className="text-stone-700 leading-relaxed">{submittedThought}</p>
+                  <p className="whitespace-pre-wrap text-stone-700 leading-relaxed">{submittedThought}</p>
                 </div>
               )}
               <AnalysisResult result={result} loading={loading} />
