@@ -6,17 +6,21 @@ import HistoryPanel from './components/HistoryPanel.jsx';
 import LoginForm from './components/LoginForm.jsx';
 import useAnalysis from './hooks/useAnalysis.js';
 import useHistory from './hooks/useHistory.js';
+import useReflect from './hooks/useReflect.js';
 import distortions from './data/distortions.js';
+import ReflectResult from './components/ReflectResult.jsx';
 
-const TABS = ['Analyze', 'Reference'];
+const TABS = ['Analyze', 'Reference', 'Patterns'];
 
 export default function App() {
   const [credentials, setCredentials] = useState(null);
   const [tab, setTab] = useState('Analyze');
   const [submittedThought, setSubmittedThought] = useState('');
   const [inputKey, setInputKey] = useState(0);
+  const [reflectKey, setReflectKey] = useState(0);
   const { loading, error, result, setResult, analyze } = useAnalysis(credentials);
   const { entries, addEntry, clearHistory } = useHistory();
+  const { reflectLoading, reflectError, reflectResult, practiceLoading, practiceError, feedback, reflect, submitPractice, reset } = useReflect(credentials);
 
   async function handleSubmit(thought) {
     setSubmittedThought(thought);
@@ -31,6 +35,12 @@ export default function App() {
     setSubmittedThought(entry.thought);
     setResult(entry.result);
     setTab('Analyze');
+  }
+
+  async function handleReflect() {
+    setTab('Patterns');
+    setReflectKey((k) => k + 1);
+    await reflect(entries);
   }
 
   if (!credentials) return <LoginForm onSuccess={setCredentials} />;
@@ -52,7 +62,8 @@ export default function App() {
           <HistoryPanel
             entries={entries}
             onSelect={handleHistorySelect}
-            onClear={() => { clearHistory(); setResult(null); setSubmittedThought(''); }}
+            onClear={() => { clearHistory(); setResult(null); setSubmittedThought(''); reset(); }}
+            onReflect={handleReflect}
           />
         </div>
 
@@ -90,6 +101,30 @@ export default function App() {
                 </div>
               )}
               <AnalysisResult result={result} loading={loading} />
+            </div>
+          )}
+
+          {tab === 'Patterns' && (
+            <div className="flex flex-col gap-6">
+              {reflectError && (
+                <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                  {reflectError}
+                </div>
+              )}
+              {!reflectError && !reflectLoading && !reflectResult && (
+                <p className="text-sm text-stone-400 italic">Add at least 3 entries, then click "Review My Patterns" in your history to get started.</p>
+              )}
+              {!reflectError && (
+                <ReflectResult
+                  key={reflectKey}
+                  result={reflectResult}
+                  loading={reflectLoading}
+                  onSubmitPractice={submitPractice}
+                  practiceLoading={practiceLoading}
+                  practiceError={practiceError}
+                  feedback={feedback}
+                />
+              )}
             </div>
           )}
 
