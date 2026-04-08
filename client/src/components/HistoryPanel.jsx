@@ -38,11 +38,13 @@ export default function HistoryPanel({ entries, onSelect, onClear, onReflect }) 
               </button>
             ))
           )}
-          {entries.length >= 3 && onReflect && (
+          {onReflect && (
             <div className="mt-2 pt-2 border-t border-stone-100">
               <button
                 onClick={onReflect}
-                className="w-full rounded-lg bg-amber-100 px-2 py-2 text-xs font-semibold text-amber-700 hover:bg-amber-200 transition-colors"
+                disabled={entries.length < 3}
+                title={entries.length < 3 ? 'Add at least 3 entries to review your patterns' : undefined}
+                className="w-full rounded-lg bg-amber-100 px-2 py-2 text-xs font-semibold text-amber-700 hover:bg-amber-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-amber-100"
               >
                 Review My Patterns
               </button>

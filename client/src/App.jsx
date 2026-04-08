@@ -112,7 +112,7 @@ export default function App() {
                 </div>
               )}
               {!reflectError && !reflectLoading && !reflectResult && (
-                <p className="text-sm text-stone-400 italic">Click "Review My Patterns" in your history to get started.</p>
+                <p className="text-sm text-stone-400 italic">Add at least 3 entries, then click "Review My Patterns" in your history to get started.</p>
               )}
               {!reflectError && (
                 <ReflectResult
