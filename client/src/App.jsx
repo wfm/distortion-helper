@@ -10,12 +10,11 @@ import useReflect from './hooks/useReflect.js';
 import distortions from './data/distortions.js';
 import ReflectResult from './components/ReflectResult.jsx';
 
-const TABS = ['Analyze', 'Reference'];
+const TABS = ['Analyze', 'Reference', 'Patterns'];
 
 export default function App() {
   const [credentials, setCredentials] = useState(null);
   const [tab, setTab] = useState('Analyze');
-  const [view, setView] = useState('analyze');
   const [submittedThought, setSubmittedThought] = useState('');
   const [inputKey, setInputKey] = useState(0);
   const [reflectKey, setReflectKey] = useState(0);
@@ -33,15 +32,13 @@ export default function App() {
   }
 
   function handleHistorySelect(entry) {
-    setView('analyze');
-    reset();
     setSubmittedThought(entry.thought);
     setResult(entry.result);
     setTab('Analyze');
   }
 
   async function handleReflect() {
-    setView('reflect');
+    setTab('Patterns');
     setReflectKey((k) => k + 1);
     await reflect(entries);
   }
@@ -65,7 +62,7 @@ export default function App() {
           <HistoryPanel
             entries={entries}
             onSelect={handleHistorySelect}
-            onClear={() => { clearHistory(); setResult(null); setSubmittedThought(''); setView('analyze'); reset(); }}
+            onClear={() => { clearHistory(); setResult(null); setSubmittedThought(''); reset(); }}
             onReflect={handleReflect}
           />
         </div>
@@ -77,7 +74,7 @@ export default function App() {
             {TABS.map((t) => (
               <button
                 key={t}
-                onClick={() => { setTab(t); reset(); setView('analyze'); }}
+                onClick={() => setTab(t)}
                 className={`px-4 py-2.5 text-sm font-semibold transition-colors ${
                   tab === t
                     ? 'border-b-2 -mb-0.5 border-amber-500 text-amber-700'
@@ -89,7 +86,7 @@ export default function App() {
             ))}
           </div>
 
-          {tab === 'Analyze' && view === 'analyze' && (
+          {tab === 'Analyze' && (
             <div className="flex flex-col gap-6">
               <ThoughtInput key={inputKey} onSubmit={handleSubmit} loading={loading} />
               {error && (
@@ -107,18 +104,15 @@ export default function App() {
             </div>
           )}
 
-          {tab === 'Analyze' && view === 'reflect' && (
+          {tab === 'Patterns' && (
             <div className="flex flex-col gap-6">
-              <button
-                onClick={() => { setView('analyze'); reset(); }}
-                className="self-start text-xs text-stone-400 hover:text-stone-600 transition-colors"
-              >
-                ← Back
-              </button>
               {reflectError && (
                 <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
                   {reflectError}
                 </div>
+              )}
+              {!reflectError && !reflectLoading && !reflectResult && (
+                <p className="text-sm text-stone-400 italic">Click "Review My Patterns" in your history to get started.</p>
               )}
               {!reflectError && (
                 <ReflectResult
