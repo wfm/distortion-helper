@@ -20,7 +20,7 @@ function Skeleton() {
   );
 }
 
-export default function ReflectResult({ result, loading, onSubmitPractice, practiceLoading, practiceError, feedback }) {
+export default function ReflectResult({ result, loading, onSubmitPractice, practiceLoading, practiceError, feedback, onDistortionClick }) {
   const [practiceAttempt, setPracticeAttempt] = useState('');
 
   if (loading) return <Skeleton />;
@@ -47,9 +47,12 @@ export default function ReflectResult({ result, loading, onSubmitPractice, pract
         <ul className="flex flex-col gap-2">
           {result.rankedDistortions.map((d, i) => (
             <li key={d.id} className="flex items-center gap-3">
-              <span className={`text-sm flex-1 min-w-0 truncate ${i === 0 ? 'font-semibold text-stone-800' : 'text-stone-600'}`}>
+              <button
+                onClick={() => onDistortionClick?.(d)}
+                className={`text-sm flex-1 min-w-0 truncate text-left hover:text-amber-600 transition-colors ${i === 0 ? 'font-semibold text-stone-800' : 'text-stone-600'}`}
+              >
                 {d.name}
-              </span>
+              </button>
               <span className="text-xs text-stone-400 shrink-0">×{d.count}</span>
               <div className="w-24 shrink-0">
                 <div

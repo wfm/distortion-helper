@@ -29,7 +29,7 @@ function Skeleton() {
   );
 }
 
-export default function AnalysisResult({ result, loading }) {
+export default function AnalysisResult({ result, loading, onDistortionClick }) {
   if (loading) return <Skeleton />;
 
   if (!result) return (
@@ -52,7 +52,12 @@ export default function AnalysisResult({ result, loading }) {
             Distortions found
           </h2>
           {result.distortions.map((d) => (
-            <DistortionCard key={d.id} distortion={d} mode="result" />
+            <DistortionCard
+              key={d.id}
+              distortion={d}
+              mode="result"
+              onInfoClick={onDistortionClick ? () => onDistortionClick(d) : null}
+            />
           ))}
         </div>
       )}

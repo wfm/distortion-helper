@@ -2,7 +2,7 @@
 // - "reference" mode: shows static data from distortions.js
 // - "result" mode: shows AI-matched distortion with explanation + severity badge
 
-export default function DistortionCard({ distortion, mode = 'reference' }) {
+export default function DistortionCard({ distortion, mode = 'reference', onInfoClick }) {
   const severityBorder =
     mode === 'result'
       ? distortion.severity === 'primary'
@@ -28,7 +28,17 @@ export default function DistortionCard({ distortion, mode = 'reference' }) {
       </div>
 
       {mode === 'result' ? (
-        <p className="mt-1.5 text-sm leading-relaxed text-stone-600">{distortion.explanation}</p>
+        <>
+          <p className="mt-1.5 text-sm leading-relaxed text-stone-600">{distortion.explanation}</p>
+          {onInfoClick && (
+            <button
+              onClick={onInfoClick}
+              className="mt-3 text-xs font-medium text-amber-600 hover:text-amber-700 transition-colors"
+            >
+              Learn more about this distortion →
+            </button>
+          )}
+        </>
       ) : (
         <>
           <p className="mt-1.5 text-sm leading-relaxed text-stone-600">{distortion.shortDescription}</p>
@@ -40,6 +50,11 @@ export default function DistortionCard({ distortion, mode = 'reference' }) {
           {distortion.reframeTechnique && (
             <p className="mt-3 text-xs font-semibold text-amber-600">
               Reframe: {distortion.reframeTechnique}
+            </p>
+          )}
+          {distortion.reframeTechniqueDescription && (
+            <p className="mt-1.5 text-sm text-stone-500 leading-relaxed">
+              {distortion.reframeTechniqueDescription}
             </p>
           )}
         </>
