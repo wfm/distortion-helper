@@ -2,6 +2,7 @@ import { useState } from 'react';
 import ThoughtInput from './components/ThoughtInput.jsx';
 import AnalysisResult from './components/AnalysisResult.jsx';
 import DistortionCard from './components/DistortionCard.jsx';
+import DistortionModal from './components/DistortionModal.jsx';
 import HistoryPanel from './components/HistoryPanel.jsx';
 import LoginForm from './components/LoginForm.jsx';
 import useAnalysis from './hooks/useAnalysis.js';
@@ -10,12 +11,13 @@ import useReflect from './hooks/useReflect.js';
 import distortions from './data/distortions.js';
 import ReflectResult from './components/ReflectResult.jsx';
 
-const TABS = ['Analyze', 'Reference', 'Patterns'];
+const TABS = ['Analyze', 'Patterns', 'Reference'];
 
 export default function App() {
   const [credentials, setCredentials] = useState(null);
   const [tab, setTab] = useState('Analyze');
   const [submittedThought, setSubmittedThought] = useState('');
+  const [modalDistortion, setModalDistortion] = useState(null);
   const [inputKey, setInputKey] = useState(0);
   const [reflectKey, setReflectKey] = useState(0);
   const { loading, error, result, setResult, analyze } = useAnalysis(credentials);
@@ -100,7 +102,11 @@ export default function App() {
                   <p className="whitespace-pre-wrap text-stone-700 leading-relaxed">{submittedThought}</p>
                 </div>
               )}
-              <AnalysisResult result={result} loading={loading} />
+              <AnalysisResult
+                result={result}
+                loading={loading}
+                onDistortionClick={(d) => setModalDistortion(d)}
+              />
             </div>
           )}
 
@@ -123,6 +129,7 @@ export default function App() {
                   practiceLoading={practiceLoading}
                   practiceError={practiceError}
                   feedback={feedback}
+                  onDistortionClick={(d) => setModalDistortion(d)}
                 />
               )}
             </div>
@@ -137,6 +144,19 @@ export default function App() {
           )}
         </main>
       </div>
+
+      {modalDistortion && (() => {
+        const ref =
+          distortions.find((ref) => ref.id === modalDistortion.id) ??
+          distortions.find((ref) => ref.name.toLowerCase() === modalDistortion.name?.toLowerCase()) ??
+          { ...modalDistortion, shortDescription: modalDistortion.explanation };
+        return (
+          <DistortionModal
+            distortion={ref}
+            onClose={() => setModalDistortion(null)}
+          />
+        );
+      })()}
     </div>
   );
 }
