@@ -83,3 +83,4 @@ Set in `server/.env` (dev) or your hosting dashboard (production):
 ## Disclaimer
 
 This tool is for self-reflection only and is not a substitute for support from a qualified mental health professional.
+Developed using Claude Code.
