@@ -23,17 +23,21 @@ distortion-helper/
 │   │   │   ├── ThoughtInput.jsx
 │   │   │   ├── AnalysisResult.jsx
 │   │   │   ├── DistortionCard.jsx
-│   │   │   └── HistoryPanel.jsx
+│   │   │   ├── DistortionModal.jsx
+│   │   │   ├── HistoryPanel.jsx
+│   │   │   └── ReflectResult.jsx
 │   │   ├── hooks/
 │   │   │   ├── useAnalysis.js
-│   │   │   └── useHistory.js
+│   │   │   ├── useHistory.js
+│   │   │   └── useReflect.js
 │   │   ├── data/
 │   │   │   └── distortions.js
 │   │   └── App.jsx
 └── server/
     ├── .env                  ← gitignored
     ├── .env.example
-    └── index.js
+    ├── index.js
+    └── prompts.js
 ```
 
 ## Running locally
@@ -69,7 +73,7 @@ presence of `client/dist/`.
 ## The 10 cognitive distortions (source of truth)
 
 Each entry in `data/distortions.js` must include:
-`id`, `name`, `shortDescription`, `example`, `reframeTechnique`
+`id`, `name`, `shortDescription`, `example`, `reframeTechnique`, `reframeTechniqueDescription`
 
 1. **All-or-Nothing Thinking** — seeing things in black and white
 2. **Overgeneralization** — one negative event as a never-ending pattern
@@ -105,19 +109,41 @@ POST /api/analyze
     reframe: string,
     disclaimer: string
   }
+POST /api/reflect
+  Body:    { entries: Array }
+  Response: { rankedDistortions: [{ id, name, count }], theme, topDistortion, practicePrompt }
+POST /api/practice
+  Body:    { distortionName, practicePrompt, userAttempt }
+  Response: { feedback: string }
 ```
 
-Both endpoints require Basic Auth.
+All endpoints require Basic Auth. `/api/reflect` is rate-limited to 10 req/IP/hour;
+`/api/practice` to 15 req/IP/hour.
 
-## System prompt (used verbatim in server/index.js)
+## System prompts (defined in server/prompts.js)
 
+### ANALYZE_PROMPT
 ```
 You are a compassionate CBT-informed assistant helping users recognize
 cognitive distortions in their thoughts. Analyze the user's thought and:
 
-1. Identify which of the 10 Burns cognitive distortions are present.
+1. Identify which of the following 10 Burns cognitive distortions are present.
+   Use only these distortions — do not introduce others.
    Label each as "primary" (clearly present) or "secondary" (possibly present).
    It is fine to identify only one, or none at all.
+
+   Available distortions (use the exact id and name values in your response):
+   - id: "all-or-nothing",               name: "All-or-Nothing Thinking"
+   - id: "overgeneralization",            name: "Overgeneralization"
+   - id: "mental-filter",                name: "Mental Filter"
+   - id: "disqualifying-the-positive",   name: "Disqualifying the Positive"
+   - id: "jumping-to-conclusions",       name: "Jumping to Conclusions"
+   - id: "magnification-or-minimization", name: "Magnification or Minimization"
+   - id: "emotional-reasoning",          name: "Emotional Reasoning"
+   - id: "should-statements",            name: "Should Statements"
+   - id: "labeling",                     name: "Labeling"
+   - id: "personalization-and-blame",    name: "Personalization and Blame"
+
 2. For each distortion found, write a brief warm, non-judgmental explanation
    of why it applies to this specific thought.
 3. Suggest a compassionate reframe for the thought in 2-3 sentences.
@@ -139,11 +165,14 @@ Respond ONLY with valid JSON matching this schema — no preamble, no markdown:
 |---|---|
 | `LoginForm` | Shown before main UI; verifies credentials via `GET /api/ping`; lifts credentials to App on success |
 | `ThoughtInput` | Textarea + submit button; handles loading state; disabled during fetch; clears on success |
-| `AnalysisResult` | Renders loading skeleton, distortions list, reframe, disclaimer, or empty state |
-| `DistortionCard` | Single distortion — used in results (`mode="result"`) AND the reference browser (`mode="reference"`) |
+| `AnalysisResult` | Renders loading skeleton, distortions list, reframe, disclaimer, or empty state; result-mode cards have a "Learn more" link that opens `DistortionModal` |
+| `DistortionCard` | Single distortion — used in results (`mode="result"`) AND the reference browser (`mode="reference"`); accepts optional `onInfoClick` prop in result mode |
+| `DistortionModal` | Overlay showing full reference card for a distortion; closes on Escape, backdrop click, or ✕ button |
 | `HistoryPanel` | Collapsible sidebar; renders past entries from localStorage; click to re-view |
+| `ReflectResult` | Renders pattern analysis: theme, ranked distortions bar chart (names are clickable → `DistortionModal`), practice prompt + submission form + feedback |
 | `useAnalysis(credentials)` | POST to `/api/analyze` with Authorization header; manages `loading`, `error`, `result` state |
 | `useHistory` | Read/write localStorage; exposes `entries`, `addEntry`, `clearHistory` |
+| `useReflect(credentials)` | POST to `/api/reflect` and `/api/practice`; manages reflect/practice loading, error, and result state |
 
 ## Environment
 

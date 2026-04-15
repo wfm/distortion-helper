@@ -7,7 +7,8 @@ A React web app that helps users identify cognitive distortions in their negativ
 - Analyzes thoughts against the 10 Burns cognitive distortions
 - Warm, friendly UI — feels like a kind journal, not a medical tool
 - Session history saved to localStorage
-- Distortion reference browser
+- **Review My Patterns** — analyzes your history to surface recurring distortions, identifies a theme, and generates a personalized practice prompt with AI feedback on your attempt
+- Distortion reference browser with clickable detail cards
 - Basic Auth protected API
 
 ## Prerequisites
@@ -77,7 +78,7 @@ Set in `server/.env` (dev) or your hosting dashboard (production):
 - **Frontend**: React (Vite), Tailwind CSS
 - **Backend**: Express.js
 - **AI**: Anthropic claude-sonnet-4-20250514
-- **Security**: Helmet (CSP), Basic Auth, rate limiting (20 req/IP/hour on `/api/analyze`)
+- **Security**: Helmet (CSP), Basic Auth, rate limiting (20 req/IP/hour on `/api/analyze`, 10 on `/api/reflect`, 15 on `/api/practice`)
 
 ## Disclaimer
 
